@@ -6,11 +6,11 @@ export class AccountEntity {
   id: string;
 
   @Column()
-  email: string;
+  name: string;
 
-  @Column()
+  @Column({ default: false })
   is_activated: boolean;
 
-  @Column()
-  created_at: Date;
+  @Column({ default: new Date() })
+  updated_at: Date;
 }

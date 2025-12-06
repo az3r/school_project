@@ -1,14 +1,14 @@
 import "reflect-metadata";
-import { init } from "./domains/typeorm";
+import { init } from "./modules/typeorm";
 import app from "./modules/app";
 import router from "./modules/router";
 import logger from "./tools/logger";
+import * as cors from "@koa/cors";
+import * as bodyParser from "koa-bodyparser";
+import "./routes";
 
-// response
-app.use((ctx) => {
-  ctx.body = "Hello Koa";
-});
-
+app.use(cors({ origin: "*" }));
+app.use(bodyParser());
 app.use(router.routes());
 
 async function setup() {
