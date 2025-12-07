@@ -3,9 +3,11 @@ import CreateAccountDto from "../dtos/create_account.dto";
 import router from "../modules/router";
 import entity_manager from "../modules/typeorm";
 import { nanoid } from "nanoid";
+import logger from "../tools/logger";
 
 router.get("/get_account_list", async (ctx) => {
   const account_list = await entity_manager.find(AccountEntity);
+  logger.info(account_list);
   ctx.body = account_list;
 });
 
