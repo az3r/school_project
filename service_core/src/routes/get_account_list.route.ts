@@ -1,4 +1,4 @@
-import { AccountEntity } from "../domains/entities/account.entity";
+import AccountEntity from "../domains/entities/account.entity";
 import CreateAccountDto from "../dtos/create_account.dto";
 import router from "../modules/router";
 import entity_manager from "../modules/typeorm";

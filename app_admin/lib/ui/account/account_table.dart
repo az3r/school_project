@@ -8,13 +8,15 @@ class AccountTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DataTable(
-      columns: [
-        DataColumn(label: Text("ID")),
-        DataColumn(label: Text("Name")),
-        DataColumn(label: Text("Activated")),
-      ],
-      rows: accounts.map(_buildTableRowItem).toList(),
+    return SelectionArea(
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text("ID")),
+          DataColumn(label: Text("Name")),
+          DataColumn(label: Text("Activated")),
+        ],
+        rows: accounts.map(_buildTableRowItem).toList(),
+      ),
     );
   }
 

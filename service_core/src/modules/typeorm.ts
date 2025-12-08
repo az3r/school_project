@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
 import logger from "../tools/logger";
-import { AccountEntity } from "../domains/entities/account.entity";
+import entities from "../domains/entities";
 
 const data_source = new DataSource({
   type: "postgres",
@@ -11,7 +11,7 @@ const data_source = new DataSource({
   database: "school",
   synchronize: true,
   logging: ["error"],
-  entities: [AccountEntity],
+  entities: entities,
 });
 
 export async function init() {

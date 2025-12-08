@@ -23,8 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetPublicKeyCredentialOption
+import az3r.me.app_client_android.api.RetrofitClient
 import az3r.me.app_client_android.ui.theme.AppTheme
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 private lateinit var credential_manager: CredentialManager;
 
@@ -55,7 +59,7 @@ fun SignIn(modifier: Modifier = Modifier) {
 
     val handleSignIn: () -> Unit = {
         coroutine.launch {
-            sign_in_with_passkeys(context, request_json)
+            sign_in_with_passkeys(context)
         }
     }
 
@@ -71,15 +75,35 @@ fun SignIn(modifier: Modifier = Modifier) {
     }
 }
 
-private suspend fun sign_in_with_passkeys(context: Context, request_json: String) {
-    Log.i("sign_in_with_passkeys", request_json)
-    val request =
-        CreatePublicKeyCredentialRequest(requestJson = "{\"challenge\":\"-aOX6pbJ8h8KkERfbh22KWko2aVJtMGo9VLreGgCl_Q\",\"rp\":{\"name\":\"Az3r\",\"id\":\"com.me.az3r\"},\"user\":{\"id\":\"AAAAAAAE\",\"name\":\"tyan\",\"displayName\":\"\"},\"pubKeyCredParams\":[{\"alg\":-8,\"type\":\"public-key\"},{\"alg\":-7,\"type\":\"public-key\"},{\"alg\":-257,\"type\":\"public-key\"}],\"timeout\":60000,\"attestation\":\"none\",\"excludeCredentials\":[],\"authenticatorSelection\":{\"residentKey\":\"preferred\",\"userVerification\":\"preferred\",\"requireResidentKey\":false},\"extensions\":{\"credProps\":true},\"hints\":[]}");
+private suspend fun sign_in_with_passkeys(context: Context) {
+    val core_service = RetrofitClient.core_service
+    val registration_options = core_service.generate_registration_options()
+    val create_public_key_credential_request =
+        CreatePublicKeyCredentialRequest(registration_options.toString())
 
-    val response = credential_manager.createCredential(
+    val create_credential_response = credential_manager.createCredential(
         context,
-        request,
+        create_public_key_credential_request,
     )
 
-    Log.i("sign_in_with_passkeys", response.data.toString())
+    val public_key_credential_options =
+        GetPublicKeyCredentialOption(Json.encodeToString(registration_options))
+
+    val credential_request = GetCredentialRequest(
+        listOf(public_key_credential_options),
+    )
+
+    val prepare_get_credential = credential_manager.prepareGetCredential(credential_request)
+    val get_credential_response = prepare_get_credential.pendingGetCredentialHandle.let {
+        if (it == null)
+            credential_manager.getCredential(context, credential_request)
+        else credential_manager.getCredential(context, it)
+    }
+
+
+    val credential = get_credential_response.credential
+    Log.i("passkeys", credential.toString())
+
+//    val dto = VerifyRegistrationResponseDto("3Fv1me")
+//    core_service.verify_registration_response()
 }
