@@ -5,30 +5,29 @@ import {
   VerifiedRegistrationResponse,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import router from "../modules/router";
 import AccountEntity from "../domains/entities/account.entity";
 import entity_manager from "../modules/typeorm";
 import logger from "../tools/logger";
 import PasskeyEntity from "../domains/entities/passkey.entity";
 import { error } from "console";
+import { isoUint8Array } from "@simplewebauthn/server/helpers";
+import app from "../modules/app";
 
-router.post("/generate-registration-options", async (ctx) => {
-  const payload = ctx.request.body as AccountEntity;
+app.post("/generate-registration-options", async (req, res) => {
+  console.log(req.body);
+  const payload = req.body as AccountEntity;
   const user = await entity_manager.findOne(AccountEntity, {
     where: { id: payload.id },
   });
   const options = await generateRegistrationOptions({
     rpName: "Az3r",
-    rpID: "com.me.az3r",
-    userID: Uint8Array.from(user.id),
+    rpID: "service-core.vercel.app",
+    userID: isoUint8Array.fromUTF8String(user.id),
     userName: user.name,
     authenticatorSelection: {
-      requireResidentKey: true,
-      residentKey: "required",
-      userVerification: "required",
+      authenticatorAttachment: "platform",
     },
   });
-  ctx.body = options;
 
   await entity_manager.upsert(
     PasskeyEntity,
@@ -39,10 +38,12 @@ router.post("/generate-registration-options", async (ctx) => {
     },
     ["account_id"]
   );
+
+  res.json(options);
 });
 
-router.post("/verify-registration-response", async (ctx) => {
-  const body = ctx.request.body as {
+app.post("/verify-registration-response", async (req, res) => {
+  const body = req.body as {
     id: string;
     response: RegistrationResponseJSON;
   };
@@ -52,13 +53,11 @@ router.post("/verify-registration-response", async (ctx) => {
   });
 
   if (!account) {
-    ctx.status = 400;
-    ctx.body = {
+    return res.status(400).json({
       error: {
         message: "Account is not activated",
       },
-    };
-    return;
+    });
   }
 
   let verification: VerifiedRegistrationResponse;
@@ -66,27 +65,27 @@ router.post("/verify-registration-response", async (ctx) => {
     verification = await verifyRegistrationResponse({
       response: body.response,
       expectedChallenge: account.challenge,
-      expectedOrigin: origin,
-      expectedRPID: "com.me.az3r",
+      expectedOrigin:
+        "android:apk-key-hash:AEGBzXlcOO75kBxiThcS5pOb_09pOAZrhC1zzmUQT00",
+      expectedRPID: "service-core.vercel.app",
     });
   } catch (error) {
     logger.error(error);
-    ctx.status = 400;
-    ctx.body = { error };
+    res.status(400).json({ error });
   }
 
   if (!verification.verified) {
-    ctx.status = 400;
-    ctx.body = {
+    res.status(400).json({
       error: {
         message: "Failed to verify registration response",
       },
-    };
+    });
     return;
   }
 
   account.registration_info = verification.registrationInfo;
+  account.response = body.response;
   await entity_manager.save(account);
 
-  ctx.status = 200;
+  return res.status(200).json();
 });

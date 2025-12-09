@@ -1,0 +1,39 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "az3r.me.app_client_android",
+    "sha256_cert_fingerprints":
+    ["00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"]
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "http://localhost:3000"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "http://127.0.0.1:3000"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "http://10.0.2.2:3000"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "az3r.me.app_client_android",
+    "sha256_cert_fingerprints":
+    ["00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"]
+  }
+}]

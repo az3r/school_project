@@ -1,4 +1,4 @@
-import Koa from "koa";
+import * as express from "express";
 
-const app = new Koa();
+const app = express();
 export default app;

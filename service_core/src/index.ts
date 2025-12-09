@@ -1,15 +1,14 @@
+import "express";
 import "reflect-metadata";
 import { init } from "./modules/typeorm";
 import app from "./modules/app";
-import router from "./modules/router";
 import logger from "./tools/logger";
-import * as cors from "@koa/cors";
-import * as bodyParser from "koa-bodyparser";
-import "./routes";
+import * as cors from "cors";
+import * as bodyParser from "body-parser";
 
 app.use(cors({ origin: "*" }));
-app.use(bodyParser());
-app.use(router.routes());
+app.use(bodyParser.json());
+import "./routes";
 
 async function setup() {
   await init();
@@ -23,3 +22,5 @@ setup()
   .catch((err) => {
     logger.error(err, "Error during application startup");
   });
+
+export default app;
