@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export default class AccountEntity {
@@ -11,6 +11,6 @@ export default class AccountEntity {
   @Column({ default: false })
   is_activated: boolean;
 
-  @Column({ default: new Date() })
+  @UpdateDateColumn({ default: new Date() })
   updated_at: Date;
 }

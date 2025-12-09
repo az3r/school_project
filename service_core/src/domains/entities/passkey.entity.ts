@@ -1,5 +1,11 @@
 import { RegistrationResponseJSON } from "@simplewebauthn/server";
-import { Column, Entity, PrimaryColumn, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryColumn,
+  Unique,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export default class PasskeyEntity {
@@ -17,4 +23,7 @@ export default class PasskeyEntity {
 
   @Column({ type: "json", nullable: true })
   registration_info: any;
+
+  @UpdateDateColumn({ default: new Date() })
+  updated_at: Date;
 }

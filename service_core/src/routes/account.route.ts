@@ -19,3 +19,15 @@ app.post("/create_account", async (req, res) => {
   await entity_manager.save(entity);
   return res.json(entity);
 });
+
+app.post("/update_account_activation", async (req, res) => {
+  const body = req.body as { id: string; is_activated: boolean };
+
+  const account = await entity_manager.findOneBy(AccountEntity, {
+    id: body.id,
+  });
+  account.is_activated = body.is_activated;
+  entity_manager.save(account);
+
+  return res.json(account);
+});

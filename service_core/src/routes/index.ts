@@ -1,6 +1,6 @@
 import app from "../modules/app";
 import * as express from "express";
-import "./get_account_list.route";
+import "./account.route";
 import "./passkeys.route";
 import { join } from "node:path";
 
