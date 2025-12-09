@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:app_admin/domains/models/account_model.dart';
+import 'package:app_admin/domains/stores/account_store.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AccountTable extends StatelessWidget {
   final List<AccountModel> accounts;
@@ -15,18 +19,35 @@ class AccountTable extends StatelessWidget {
           DataColumn(label: Text("Name")),
           DataColumn(label: Text("Activated")),
         ],
-        rows: accounts.map(_buildTableRowItem).toList(),
+        rows: accounts.map((v) => _build_table_row_item(context, v)).toList(),
       ),
     );
   }
 
-  DataRow _buildTableRowItem(final AccountModel account) {
+  DataRow _build_table_row_item(BuildContext context, AccountModel account) {
     return DataRow(
       cells: [
         DataCell(Text(account.id)),
         DataCell(Text(account.name)),
-        DataCell(Text(account.is_activated.toString())),
+        DataCell(
+          Switch(
+            value: account.is_activated,
+            onChanged: (activated) {
+              _update_account_activation(context, account, activated);
+            },
+          ),
+        ),
       ],
     );
+  }
+
+  void _update_account_activation(
+    BuildContext context,
+    AccountModel account,
+    bool activated,
+  ) {
+    log("update_account_activation");
+    final store = Provider.of<AccountStore>(context, listen: false);
+    store.set_account_activation(account, activated);
   }
 }

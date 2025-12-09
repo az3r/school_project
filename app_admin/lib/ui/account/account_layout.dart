@@ -28,15 +28,7 @@ class AccountLayout extends StatelessWidget {
                   ),
                 ],
               ),
-              body: ListenableBuilder(
-                listenable: account_store,
-                builder: (BuildContext context, Widget? child) {
-                  return Container(
-                    constraints: BoxConstraints.expand(width: 800),
-                    child: AccountTable(accounts: account_store.accounts),
-                  );
-                },
-              ),
+              body: AccountTable(accounts: account_store.accounts),
             ),
           ),
         );

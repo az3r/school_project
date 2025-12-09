@@ -14,4 +14,12 @@ class AccountModel {
   factory AccountModel.fromJson(Map<String, dynamic> json) =>
       _$AccountModelFromJson(json);
   Map<String, dynamic> toJson() => _$AccountModelToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is AccountModel) {
+      return id == other.id;
+    }
+    return super == other;
+  }
 }
