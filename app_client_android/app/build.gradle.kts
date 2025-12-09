@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "az3r.me.app_client_android"
-        minSdk = 28
+        minSdk = 34
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"

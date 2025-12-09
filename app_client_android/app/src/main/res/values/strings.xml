@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">app_client_android</string>
     <string name="server_register_options">{"challenge":"-aOX6pbJ8h8KkERfbh22KWko2aVJtMGo9VLreGgCl_Q","rp":{"name":"Az3r","id":"com.me.az3r"},"user":{"id":"AAAAAAAE","name":"tyan","displayName":""},"pubKeyCredParams":[{"alg":-8,"type":"public-key"},{"alg":-7,"type":"public-key"},{"alg":-257,"type":"public-key"}],"timeout":60000,"attestation":"none","excludeCredentials":[],"authenticatorSelection":{"residentKey":"preferred","userVerification":"preferred","requireResidentKey":false},"extensions":{"credProps":true},"hints":[]}</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://10.0.0.2:3000/.well-known/assetlinks.json\" }]</string>
 </resources>
