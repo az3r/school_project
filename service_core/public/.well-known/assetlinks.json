@@ -1,39 +1,77 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "az3r.me.app_client_android",
-    "sha256_cert_fingerprints":
-    ["00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "az3r.me.app_client_android",
+      "sha256_cert_fingerprints": [
+        "00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "http://localhost:3000"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "http://127.0.0.1:3000"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "http://10.89.203.111:3000"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "http://10.0.2.2:3000"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "az3r.me.app_client_android",
+      "sha256_cert_fingerprints": [
+        "00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "az3r.me.app_client_android",
+      "sha256_cert_fingerprints": [
+        "28:97:5D:E0:A4:07:B2:35:62:80:F6:C8:5A:D1:D8:59:3E:99:43:16:DB:78:15:35:D9:6C:7B:1F:BE:EF:18:4F"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "https://10.89.203.111:3000"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "az3r.me.app_client_android",
+      "sha256_cert_fingerprints": [
+        "28:97:5D:E0:A4:07:B2:35:62:80:F6:C8:5A:D1:D8:59:3E:99:43:16:DB:78:15:35:D9:6C:7B:1F:BE:EF:18:4F"
+      ]
+    }
   }
-},
-{
-  "relation": ["delegate_permission/common.get_login_creds"],
-  "target": {
-    "namespace": "web",
-    "site": "http://localhost:3000"
-  }
-},
-{
-  "relation": ["delegate_permission/common.get_login_creds"],
-  "target": {
-    "namespace": "web",
-    "site": "http://127.0.0.1:3000"
-  }
-},
-{
-  "relation": ["delegate_permission/common.get_login_creds"],
-  "target": {
-    "namespace": "web",
-    "site": "http://10.0.2.2:3000"
-  }
-},
-{
-  "relation": ["delegate_permission/common.get_login_creds"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "az3r.me.app_client_android",
-    "sha256_cert_fingerprints":
-    ["00:41:81:CD:79:5C:38:EE:F9:90:1C:62:4E:17:12:E6:93:9B:FF:4F:69:38:06:6B:84:2D:73:CE:65:10:4F:4D"]
-  }
-}]
+]

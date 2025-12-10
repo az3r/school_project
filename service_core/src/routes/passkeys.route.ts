@@ -14,6 +14,45 @@ import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import app from "../modules/app";
 import { EntitySchemaOptions } from "typeorm";
 
+app.get("/verify-account-registration", async (req, res) => {
+  const query = req.query as { id: string };
+
+  const account = await entity_manager.findOneBy(AccountEntity, {
+    id: query.id,
+  });
+  if (!account) return res.status(404).json();
+
+  return res.json({
+    id: account.id,
+    is_activated: account.is_activated,
+  });
+});
+
+app.get("/get-registration-options", async (req, res) => {
+  const query = req.query as { id: string };
+
+  const user = await entity_manager.findOne(AccountEntity, {
+    where: { id: query.id },
+  });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ error: { message: "Account does not exist in system" } });
+  }
+
+  if (!user.is_activated) {
+    return res
+      .status(400)
+      .json({ error: { message: "Account is not activated" } });
+  }
+
+  const passkeys = await entity_manager.findOneBy(PasskeyEntity, {
+    account_id: query.id,
+  });
+  return res.json(passkeys.options);
+});
+
 app.post("/generate-registration-options", async (req, res) => {
   const payload = req.body as AccountEntity;
 
@@ -23,7 +62,7 @@ app.post("/generate-registration-options", async (req, res) => {
 
   if (!user) {
     return res
-      .status(401)
+      .status(404)
       .json({ error: { message: "Account does not exist in system" } });
   }
 
@@ -79,8 +118,10 @@ app.post("/verify-registration-response", async (req, res) => {
     verification = await verifyRegistrationResponse({
       response: body.response,
       expectedChallenge: account_passkeys.challenge,
-      expectedOrigin:
+      expectedOrigin: [
         "android:apk-key-hash:AEGBzXlcOO75kBxiThcS5pOb_09pOAZrhC1zzmUQT00",
+        "android:apk-key-hash:KJdd4KQHsjVigPbIWtHYWT6ZQxbbeBU12Wx7H77vGE8",
+      ],
       expectedRPID: "service-core.vercel.app",
     });
   } catch (error) {
