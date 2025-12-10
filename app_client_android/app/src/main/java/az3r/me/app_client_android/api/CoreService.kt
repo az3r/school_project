@@ -1,10 +1,13 @@
 package az3r.me.app_client_android.api
 
+import az3r.me.app_client_android.domains.AccountModel
 import az3r.me.app_client_android.dtos.RegistrationOptionsDto
 import az3r.me.app_client_android.dtos.VerifyRegistrationResponseDto
 import kotlinx.serialization.json.JsonObject
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface CoreService {
     @POST("/generate-registration-options")
@@ -12,4 +15,10 @@ interface CoreService {
 
     @POST("/verify-registration-response")
     suspend fun verify_registration_response(@Body payload: VerifyRegistrationResponseDto)
+
+    @GET("/verify-account-registration")
+    suspend fun verify_account_registration(@Query("id") id: String): AccountModel
+
+    @GET("/get-registration-options")
+    suspend fun get_registration_options(@Query("id") id: String): JsonObject
 }
