@@ -1,8 +1,11 @@
 import {
+  AuthenticationResponseJSON,
+  generateAuthenticationOptions,
   generateRegistrationOptions,
   RegistrationResponseJSON,
   VerifiedAuthenticationResponse,
   VerifiedRegistrationResponse,
+  verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 import AccountEntity from "../domains/entities/account.entity";
@@ -13,6 +16,14 @@ import { error } from "console";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import app from "../modules/app";
 import { EntitySchemaOptions } from "typeorm";
+import AuthenticationEntity from "../domains/entities/authentication.entity";
+
+const rp_name = "Az3r";
+const rp_id = "service-core.vercel.app";
+const origin = [
+  "android:apk-key-hash:AEGBzXlcOO75kBxiThcS5pOb_09pOAZrhC1zzmUQT00",
+  "android:apk-key-hash:KJdd4KQHsjVigPbIWtHYWT6ZQxbbeBU12Wx7H77vGE8",
+];
 
 app.get("/verify-account-registration", async (req, res) => {
   const query = req.query as { id: string };
@@ -28,11 +39,12 @@ app.get("/verify-account-registration", async (req, res) => {
   });
 });
 
-app.get("/get-registration-options", async (req, res) => {
-  const query = req.query as { id: string };
+app.post("/generate-authentication-options", async (req, res) => {
+  const body = req.body as { id: string };
 
   const user = await entity_manager.findOne(AccountEntity, {
-    where: { id: query.id },
+    where: { id: body.id },
+    select: { id: true, is_activated: true },
   });
 
   if (!user) {
@@ -48,9 +60,79 @@ app.get("/get-registration-options", async (req, res) => {
   }
 
   const passkeys = await entity_manager.findOneBy(PasskeyEntity, {
-    account_id: query.id,
+    account_id: body.id,
   });
-  return res.json(passkeys.options);
+
+  const options = await generateAuthenticationOptions({
+    rpID: passkeys.rp_id,
+    allowCredentials: [passkeys.registration_info.credential],
+  });
+
+  await entity_manager.upsert(
+    AuthenticationEntity,
+    {
+      account_id: user.id,
+      challenge: options.challenge,
+      rp_id,
+      rp_name,
+      origin,
+      options,
+    },
+    ["account_id"]
+  );
+  return res.json(options);
+});
+
+app.post("/verify-authentication-response", async (req, res) => {
+  const body = req.body as { id: string; response: AuthenticationResponseJSON };
+  logger.info(body);
+
+  const user = await entity_manager.findOne(AccountEntity, {
+    where: { id: body.id },
+    select: { id: true, is_activated: true },
+  });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ error: { message: "Account does not exist in system" } });
+  }
+
+  if (!user.is_activated) {
+    return res
+      .status(400)
+      .json({ error: { message: "Account is not activated" } });
+  }
+
+  const authentication = await entity_manager.findOneBy(AuthenticationEntity, {
+    account_id: user.id,
+  });
+
+  const passkeys = await entity_manager.findOneBy(PasskeyEntity, {
+    account_id: body.id,
+  });
+
+  if (!authentication) {
+    return res.status(400).json({ error: { message: "" } });
+  }
+  const credential = passkeys.registration_info.credential;
+  credential.publicKey = Uint8Array.from(Object.values(credential.publicKey));
+  try {
+    const verification = await verifyAuthenticationResponse({
+      response: body.response,
+      expectedChallenge: authentication.challenge,
+      expectedOrigin: authentication.origin,
+      expectedRPID: authentication.rp_id,
+      credential,
+    });
+    if (verification.verified) return res.json(verification.authenticationInfo);
+    return res.status(400).json({
+      error: { message: "Failed to verify authentication response" },
+    });
+  } catch (error) {
+    logger.error(error);
+    res.status(400).json({ error });
+  }
 });
 
 app.post("/generate-registration-options", async (req, res) => {
@@ -73,8 +155,8 @@ app.post("/generate-registration-options", async (req, res) => {
   }
 
   const options = await generateRegistrationOptions({
-    rpName: "Az3r",
-    rpID: "service-core.vercel.app",
+    rpName: rp_name,
+    rpID: rp_id,
     userID: isoUint8Array.fromUTF8String(user.id),
     userName: user.name,
     authenticatorSelection: {
@@ -88,6 +170,9 @@ app.post("/generate-registration-options", async (req, res) => {
       account_id: user.id,
       challenge: options.challenge,
       options: options,
+      rp_id,
+      rp_name,
+      origin,
     },
     ["account_id"]
   );
@@ -118,11 +203,8 @@ app.post("/verify-registration-response", async (req, res) => {
     verification = await verifyRegistrationResponse({
       response: body.response,
       expectedChallenge: account_passkeys.challenge,
-      expectedOrigin: [
-        "android:apk-key-hash:AEGBzXlcOO75kBxiThcS5pOb_09pOAZrhC1zzmUQT00",
-        "android:apk-key-hash:KJdd4KQHsjVigPbIWtHYWT6ZQxbbeBU12Wx7H77vGE8",
-      ],
-      expectedRPID: "service-core.vercel.app",
+      expectedOrigin: account_passkeys.origin,
+      expectedRPID: account_passkeys.rp_id,
     });
   } catch (error) {
     logger.error(error);

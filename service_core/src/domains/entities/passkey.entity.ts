@@ -15,6 +15,15 @@ export default class PasskeyEntity {
   @Column({ unique: true })
   challenge: string;
 
+  @Column()
+  rp_id: string;
+
+  @Column()
+  rp_name: string;
+
+  @Column("text", { array: true })
+  origin: string[];
+
   @Column({ type: "json" })
   options: PublicKeyCredentialCreationOptionsJSON;
 
