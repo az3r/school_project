@@ -3,6 +3,7 @@ package az3r.me.app_client_android.ui.components
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +25,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import az3r.me.app_client_android.api.RetrofitClient.core_service
@@ -129,19 +129,31 @@ private suspend fun register_account_with_passkeys(context: Context, id: String)
 }
 
 private suspend fun login_account_with_passkeys(context: Context, id: String) {
-    val registration_options = core_service.get_registration_options(id)
+    val registration_options = core_service.generate_authentication_options(
+        RegistrationOptionsDto(id)
+    )
+
     val public_key_credential_options =
         GetPublicKeyCredentialOption(Json.encodeToString(registration_options))
 
-    val credential_request = GetCredentialRequest(
-        listOf(public_key_credential_options, GetPasswordOption()),
+    val get_credential_request = GetCredentialRequest(
+        listOf(public_key_credential_options),
     )
 
-    Log.i("passkeys", registration_options.toString())
-    val get_credential_response = credential_manager.getCredential(context, credential_request)
-    Log.i("passkeys", get_credential_response.credential.toString())
+    val get_credential_response = credential_manager.getCredential(context, get_credential_request)
 
     val credential = get_credential_response.credential as PublicKeyCredential
-    val responseJson = credential.authenticationResponseJson
-    Log.i("passkeys", responseJson)
+
+    val authentication_response_json =
+        credential.authenticationResponseJson
+
+    authentication_response_json?.let {
+        core_service.verify_authentication_response(
+            VerifyRegistrationResponseDto(
+                id,
+                Json.decodeFromString(authentication_response_json)
+            )
+        )
+        Toast.makeText(context, "Successfully login to application", Toast.LENGTH_SHORT).show()
+    }
 }

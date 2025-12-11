@@ -19,6 +19,9 @@ interface CoreService {
     @GET("/verify-account-registration")
     suspend fun verify_account_registration(@Query("id") id: String): AccountModel
 
-    @GET("/get-registration-options")
-    suspend fun get_registration_options(@Query("id") id: String): JsonObject
+    @POST("/generate-authentication-options")
+    suspend fun generate_authentication_options(@Body payload: RegistrationOptionsDto): JsonObject
+
+    @POST("/verify-authentication-response")
+    suspend fun verify_authentication_response(@Body payload: VerifyRegistrationResponseDto): JsonObject
 }

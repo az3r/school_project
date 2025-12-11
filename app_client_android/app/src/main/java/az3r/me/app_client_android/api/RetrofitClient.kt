@@ -7,7 +7,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 object RetrofitClient {
     private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("http://10.89.203.111:3000")
+        .baseUrl("http://192.168.100.199:3000")
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
 
