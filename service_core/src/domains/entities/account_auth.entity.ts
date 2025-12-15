@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export default class AuthenticationEntity {
+export default class AccountAuth {
   @PrimaryColumn()
   account_id: string;
 

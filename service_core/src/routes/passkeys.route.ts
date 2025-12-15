@@ -8,15 +8,15 @@ import {
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import AccountEntity from "../domains/entities/account.entity";
+import Account from "../domains/entities/account.entity";
 import entity_manager from "../modules/typeorm";
 import logger from "../tools/logger";
-import PasskeyEntity from "../domains/entities/passkey.entity";
+import AccountPasskey from "../domains/entities/account_passkey.entity";
 import { error } from "console";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import app from "../modules/app";
 import { EntitySchemaOptions } from "typeorm";
-import AuthenticationEntity from "../domains/entities/authentication.entity";
+import AccountAuth from "../domains/entities/account_auth.entity";
 
 const rp_name = "Az3r";
 const rp_id = "service-core.vercel.app";
@@ -28,7 +28,7 @@ const origin = [
 app.get("/verify-account-registration", async (req, res) => {
   const query = req.query as { id: string };
 
-  const account = await entity_manager.findOneBy(AccountEntity, {
+  const account = await entity_manager.findOneBy(Account, {
     id: query.id,
   });
   if (!account) return res.status(404).json();
@@ -42,7 +42,7 @@ app.get("/verify-account-registration", async (req, res) => {
 app.post("/generate-authentication-options", async (req, res) => {
   const body = req.body as { id: string };
 
-  const user = await entity_manager.findOne(AccountEntity, {
+  const user = await entity_manager.findOne(Account, {
     where: { id: body.id },
     select: { id: true, is_activated: true },
   });
@@ -59,7 +59,7 @@ app.post("/generate-authentication-options", async (req, res) => {
       .json({ error: { message: "Account is not activated" } });
   }
 
-  const passkeys = await entity_manager.findOneBy(PasskeyEntity, {
+  const passkeys = await entity_manager.findOneBy(AccountPasskey, {
     account_id: body.id,
   });
 
@@ -69,7 +69,7 @@ app.post("/generate-authentication-options", async (req, res) => {
   });
 
   await entity_manager.upsert(
-    AuthenticationEntity,
+    AccountAuth,
     {
       account_id: user.id,
       challenge: options.challenge,
@@ -87,7 +87,7 @@ app.post("/verify-authentication-response", async (req, res) => {
   const body = req.body as { id: string; response: AuthenticationResponseJSON };
   logger.info(body);
 
-  const user = await entity_manager.findOne(AccountEntity, {
+  const user = await entity_manager.findOne(Account, {
     where: { id: body.id },
     select: { id: true, is_activated: true },
   });
@@ -104,11 +104,11 @@ app.post("/verify-authentication-response", async (req, res) => {
       .json({ error: { message: "Account is not activated" } });
   }
 
-  const authentication = await entity_manager.findOneBy(AuthenticationEntity, {
+  const authentication = await entity_manager.findOneBy(AccountAuth, {
     account_id: user.id,
   });
 
-  const passkeys = await entity_manager.findOneBy(PasskeyEntity, {
+  const passkeys = await entity_manager.findOneBy(AccountPasskey, {
     account_id: body.id,
   });
 
@@ -136,9 +136,9 @@ app.post("/verify-authentication-response", async (req, res) => {
 });
 
 app.post("/generate-registration-options", async (req, res) => {
-  const payload = req.body as AccountEntity;
+  const payload = req.body as Account;
 
-  const user = await entity_manager.findOne(AccountEntity, {
+  const user = await entity_manager.findOne(Account, {
     where: { id: payload.id },
   });
 
@@ -165,7 +165,7 @@ app.post("/generate-registration-options", async (req, res) => {
   });
 
   await entity_manager.upsert(
-    PasskeyEntity,
+    AccountPasskey,
     {
       account_id: user.id,
       challenge: options.challenge,
@@ -186,7 +186,7 @@ app.post("/verify-registration-response", async (req, res) => {
     response: RegistrationResponseJSON;
   };
 
-  const account_passkeys = await entity_manager.findOne(PasskeyEntity, {
+  const account_passkeys = await entity_manager.findOne(AccountPasskey, {
     where: { account_id: body.id },
   });
 
@@ -224,7 +224,7 @@ app.post("/verify-registration-response", async (req, res) => {
   account_passkeys.response = body.response;
   await entity_manager.save(account_passkeys);
   await entity_manager.update(
-    AccountEntity,
+    Account,
     { id: body.id },
     { is_activated: true }
   );

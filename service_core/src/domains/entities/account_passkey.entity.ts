@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 
 @Entity()
-export default class PasskeyEntity {
+export default class AccountPasskey {
   @PrimaryColumn()
   account_id: string;
 
