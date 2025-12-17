@@ -43,3 +43,11 @@ func RespondJson(w http.ResponseWriter, data interface{}) {
 func SetHeaderJson(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
+
+func ParseJsonBody(r *http.Request, dest any) error {
+	err := json.NewDecoder(r.Body).Decode(dest)
+	if err != nil {
+		return err
+	}
+	return nil
+}

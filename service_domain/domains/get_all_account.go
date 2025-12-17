@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"az3r.me.service_domain/domains/models"
+	"az3r.me.service_domain/models"
 	"az3r.me.service_domain/tools"
 )
 
