@@ -5,7 +5,11 @@ import (
 	"os"
 )
 
-func CaptureError(tag string, e error) {
-	message := fmt.Sprintf("%s captured error: %v", tag, e)
+func CaptureError(tag string, e error) error {
+	if e == nil {
+		return e
+	}
+	message := fmt.Sprintf("%s captured error: %v\n", tag, e)
 	fmt.Fprint(os.Stderr, message)
+	return e
 }

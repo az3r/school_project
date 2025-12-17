@@ -4,26 +4,24 @@ import (
 	"net/http"
 	"slices"
 
-	"az3r.me.service_domain/domains"
 	"az3r.me.service_domain/dtos"
 	"az3r.me.service_domain/models"
-	"az3r.me.service_domain/tools"
 )
 
 type LoginHandler struct{}
 
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	domain := domains.AppDomain
-	accounts, err := domain.GetAllAccount()
-	if err != nil {
-		tools.RespondError("LoginHandler", err, w)
+	domain := GetAppDomain(r)
+
+	accounts, err := domain.GetAllAccount(r.Context())
+	if TryRespondError("LoginHandler", err, w) != nil {
 		return
 	}
 
 	var dto dtos.LoginDto
-	err = tools.ParseJsonBody(r, &dto)
-	if err != nil {
-		tools.RespondError("LoginHandler", err, w)
+	err = ParseJsonBody(r, &dto)
+	if TryRespondError("LoginHandler", err, w) != nil {
+		return
 	}
 
 	index := slices.IndexFunc(accounts, func(a models.Account) bool {
@@ -33,6 +31,6 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if index < 0 {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
-		tools.RespondJson(w, accounts[index])
+		RespondJson(w, accounts[index])
 	}
 }

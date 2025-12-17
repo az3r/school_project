@@ -2,22 +2,18 @@ package apis
 
 import (
 	"net/http"
-
-	"az3r.me.service_domain/domains"
-	"az3r.me.service_domain/tools"
 )
 
 type GetAllAccountHandler struct{}
 
 func (h *GetAllAccountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	domain := domains.AppDomain
+	domain := GetAppDomain(r)
 
-	accounts, err := domain.GetAllAccount()
+	accounts, err := domain.GetAllAccount(r.Context())
 
-	if err != nil {
-		tools.RespondError("GetAllAccountHandler", err, w)
+	if TryRespondError("GetAllAccountHandler", err, w) != nil {
 		return
 	}
 
-	tools.RespondJson(w, accounts)
+	RespondJson(w, accounts)
 }

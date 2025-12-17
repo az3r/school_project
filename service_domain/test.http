@@ -1,1 +1,20 @@
 GET http://localhost:3000/get_all_account
+
+###
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "id": "123"
+}
+
+###
+
+POST http://localhost:3000/create_account
+Content-Type: application/json
+
+{
+  "id": "123456",
+  "domain": "teacher"
+}

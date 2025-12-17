@@ -6,8 +6,8 @@ import (
 	"az3r.me.service_domain/tools"
 )
 
-func (domain Domain) GetEstimatedCount(table string) (int, error) {
-	row := domain.Conn.QueryRow(context.Background(), "SELECT reltuples::bigint AS value FROM pg_class WHERE oid = $1::regclass", table)
+func (d Domain) GetEstimatedCount(parent context.Context, table string) (int, error) {
+	row := d.Conn.QueryRow(parent, "SELECT reltuples::bigint AS value FROM pg_class WHERE oid = $1::regclass", table)
 
 	var count int
 	err := row.Scan(&count)
